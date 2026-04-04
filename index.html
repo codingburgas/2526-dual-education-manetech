@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Searcher - "Please Buy?" Supermarket</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🔍 File Searcher</h1>
+      <p>Find text in files across directories</p>
+      <p class="subtitle">For "Please Buy?" Supermarket Digital Documents</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Search Form -->
+      <div class="search-box">
+        <h2>Search Files</h2>
+        
+        <form id="searchForm">
+          <!-- Directory input -->
+          <div class="form-group">
+            <label for="directory">Directory to search:</label>
+            <input 
+              type="text" 
+              id="directory" 
+              placeholder="Example: ./test-data"
+              value="./test-data"
+            >
+            <small>Enter the path to the directory you want to search in</small>
+          </div>
+
+          <!-- Search word input -->
+          <div class="form-group">
+            <label for="searchWord">Search for:</label>
+            <input 
+              type="text" 
+              id="searchWord" 
+              placeholder="Example: World"
+              value="World"
+            >
+            <small>Enter the word or text you want to find</small>
+          </div>
+
+          <!-- Submit button -->
+          <button type="submit" class="btn-search">🔍 Search</button>
+        </form>
+      </div>
+
+      <!-- Status message -->
+      <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+      <!-- Loading spinner -->
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Searching...</p>
+      </div>
+
+      <!-- Results section -->
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <h2>Search Results</h2>
+        <div id="resultsSummary" class="results-summary"></div>
+        <div id="resultsList" class="results-list"></div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>File Searcher v1.0 | Dual Education Program 2026</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Get references to HTML elements
+    const searchForm = document.getElementById('searchForm');
+    const directoryInput = document.getElementById('directory');
+    const searchWordInput = document.getElementById('searchWord');
+    const statusMessage = document.getElementById('statusMessage');
+    const loading = document.getElementById('loading');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsSummary = document.getElementById('resultsSummary');
+    const resultsList = document.getElementById('resultsList');
+
+    // Handle form submission
+    searchForm.addEventListener('submit', async (event) => {
+      // Prevent the form from reloading the page
+      event.preventDefault();
+
+      // Get input values
+      const directory = directoryInput.value.trim();
+      const searchWord = searchWordInput.value.trim();
+
+      // Validate inputs
+      if (!directory) {
+        showStatus('error', 'Please enter a directory path');
+        return;
+      }
+
+      if (!searchWord) {
+        showStatus('error', 'Please enter a search word');
+        return;
+      }
+
+      // Hide previous results and show loading spinner
+      resultsSection.style.display = 'none';
+      statusMessage.style.display = 'none';
+      loading.style.display = 'flex';
+
+      try {
+        // Send request to server (use absolute URL for Live Server compatibility)
+        const response = await fetch('http://localhost:3000/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            directory: directory,
+            searchWord: searchWord
+          })
+        });
+
+        // Parse the response
+        const data = await response.json();
+
+        // Hide loading spinner
+        loading.style.display = 'none';
+
+        // Check if search was successful
+        if (!response.ok) {
+          showStatus('error', data.error || 'Search failed');
+          return;
+        }
+
+        // Display results
+        displayResults(data);
+
+      } catch (error) {
+        // Handle network errors
+        loading.style.display = 'none';
+        showStatus('error', 'Network error: ' + error.message);
+      }
+    });
+
+    // Function to show status messages
+    function showStatus(type, message) {
+      statusMessage.className = 'status-message ' + type;
+      statusMessage.textContent = message;
+      statusMessage.style.display = 'block';
+    }
+
+    // Function to display search results
+    function displayResults(data) {
+      // Show results section
+      resultsSection.style.display = 'block';
+
+      // Show summary
+      const filesFound = data.filesFound;
+      resultsSummary.innerHTML = `
+        <p><strong>Found in ${filesFound} file(s)</strong></p>
+      `;
+
+      // List all results
+      if (filesFound === 0) {
+        resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
+      } else {
+        let html = '<div class="results-table">';
+
+        for (let filePath in data.results) {
+          const lineNumbers = data.results[filePath];
+          html += `
+            <div class="result-item">
+              <div class="result-file">📄 ${filePath}</div>
+              <div class="result-lines">Lines: <strong>${lineNumbers.join(', ')}</strong></div>
+            </div>
+          `;
+        }
+
+        html += '</div>';
+        resultsList.innerHTML = html;
+      }
+    }
+  </script>
+</body>
+</html>
