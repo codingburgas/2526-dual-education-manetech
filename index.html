@@ -3,79 +3,212 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>File Searcher - "Please Buy?" Supermarket</title>
+  <title>File Searcher - Document Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#1a1f35">
 </head>
 <body>
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <h1>🔍 File Searcher</h1>
-      <p>Find text in files across directories</p>
-      <p class="subtitle">For "Please Buy?" Supermarket Digital Documents</p>
-    </header>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">📁</div>
+      <div class="brand-text">
+        <h3>FileSeek</h3>
+        <p>v1.0</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#search" class="nav-item active" onclick="switchTab(event, 'search')">Search</a>
+      <a href="#recent" class="nav-item" onclick="switchTab(event, 'recent')">Recent</a>
+      <a href="#help" class="nav-item" onclick="switchTab(event, 'help')">Help</a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Dual Education 2026</p>
+    </div>
+  </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Search Form -->
-      <div class="search-box">
-        <h2>Search Files</h2>
-        
-        <form id="searchForm">
-          <!-- Directory input -->
-          <div class="form-group">
-            <label for="directory">Directory to search:</label>
-            <input 
-              type="text" 
-              id="directory" 
-              placeholder="Example: ./test-data"
-              value="./test-data"
-            >
-            <small>Enter the path to the directory you want to search in</small>
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-content">
+        <h1 id="pageTitle">File Search Tool</h1>
+        <p class="subtitle" id="pageSubtitle">Search through your documents efficiently</p>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Search Tab -->
+      <div id="search-tab" class="tab-content active">
+        <!-- Left Section - Form -->
+        <section class="search-section">
+          <div class="section-card">
+            <div class="card-header">
+              <h2>Search Configuration</h2>
+              <span class="badge">Step 1</span>
+            </div>
+            
+            <form id="searchForm" class="search-form">
+              <div class="form-group">
+                <label for="directory">Directory Path</label>
+                <input 
+                  type="text" 
+                  id="directory" 
+                  placeholder="./test-data"
+                  value="./test-data"
+                  class="form-input"
+                >
+                <span class="form-hint">Enter the directory path to search</span>
+              </div>
+
+              <div class="form-group">
+                <label for="searchWord">Search Term</label>
+                <input 
+                  type="text" 
+                  id="searchWord" 
+                  placeholder="World"
+                  value="World"
+                  class="form-input"
+                >
+                <span class="form-hint">Enter the word or phrase to find</span>
+              </div>
+
+              <button type="submit" class="btn-primary">
+                <span class="btn-icon">🔍</span>
+                <span class="btn-text">Search Now</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Right Section - Results -->
+        <section class="results-section">
+          <!-- Status Message -->
+          <div id="statusMessage" class="status-card" style="display: none;"></div>
+
+          <!-- Loading State -->
+          <div id="loading" class="loading-card" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Searching your files...</p>
+            <span class="loading-subtext">This may take a moment</span>
           </div>
 
-          <!-- Search word input -->
-          <div class="form-group">
-            <label for="searchWord">Search for:</label>
-            <input 
-              type="text" 
-              id="searchWord" 
-              placeholder="Example: World"
-              value="World"
-            >
-            <small>Enter the word or text you want to find</small>
+          <!-- Results Card -->
+          <div id="resultsSection" class="section-card" style="display: none;">
+            <div class="card-header">
+              <h2>Results</h2>
+              <span id="resultsBadge" class="badge">0 files</span>
+            </div>
+            
+            <div id="resultsSummary" class="results-stats"></div>
+            <div id="resultsList" class="results-container"></div>
           </div>
 
-          <!-- Submit button -->
-          <button type="submit" class="btn-search">🔍 Search</button>
-        </form>
+          <!-- Empty State -->
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h3>No search yet</h3>
+            <p>Use the search form to find files with your keyword</p>
+          </div>
+        </section>
       </div>
 
-      <!-- Status message -->
-      <div id="statusMessage" class="status-message" style="display: none;"></div>
-
-      <!-- Loading spinner -->
-      <div id="loading" class="loading" style="display: none;">
-        <div class="spinner"></div>
-        <p>Searching...</p>
+      <!-- Recent Tab -->
+      <div id="recent-tab" class="tab-content">
+        <section class="full-section">
+          <div class="section-card">
+            <div class="card-header">
+              <h2>Recent Searches</h2>
+              <span class="badge">History</span>
+            </div>
+            
+            <div id="recentList" class="recent-list">
+              <div class="empty-state">
+                <div class="empty-icon">🕐</div>
+                <h3>No recent searches</h3>
+                <p>Your search history will appear here</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <!-- Results section -->
-      <div id="resultsSection" class="results-section" style="display: none;">
-        <h2>Search Results</h2>
-        <div id="resultsSummary" class="results-summary"></div>
-        <div id="resultsList" class="results-list"></div>
-      </div>
-    </main>
+      <!-- Help Tab -->
+      <div id="help-tab" class="tab-content">
+        <section class="full-section">
+          <div class="section-card">
+            <div class="card-header">
+              <h2>Help & Documentation</h2>
+              <span class="badge">Guide</span>
+            </div>
+            
+            <div class="help-content">
+              <div class="help-section">
+                <h3>Getting Started</h3>
+                <p>FileSeek is a powerful document search tool that helps you find text within your files quickly and efficiently.</p>
+              </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <p>File Searcher v1.0 | Dual Education Program 2026</p>
-    </footer>
-  </div>
+              <div class="help-section">
+                <h3>How to Search</h3>
+                <ol>
+                  <li>Enter the directory path where your files are located</li>
+                  <li>Type the word or phrase you want to find</li>
+                  <li>Click "Search Now" to start searching</li>
+                  <li>View results with file paths and line numbers</li>
+                </ol>
+              </div>
+
+              <div class="help-section">
+                <h3>Tips & Tricks</h3>
+                <ul>
+                  <li>Use relative paths like ./documents or ./test-data</li>
+                  <li>Search is case-insensitive</li>
+                  <li>Results show exact line numbers for easy access</li>
+                  <li>Your recent searches are automatically saved</li>
+                </ul>
+              </div>
+
+              <div class="help-section">
+                <h3>Support</h3>
+                <p>For additional help, contact the Dual Education team or visit the project documentation.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
 
   <!-- JavaScript -->
   <script>
+    // Tab switching functionality
+    function switchTab(event, tabName) {
+      event.preventDefault();
+      
+      // Hide all tabs
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Remove active class from all nav items
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      // Show selected tab
+      document.getElementById(tabName + '-tab').classList.add('active');
+      event.target.classList.add('active');
+      
+      // Update page title and subtitle
+      const titles = {
+        search: { title: 'File Search Tool', subtitle: 'Search through your documents efficiently' },
+        recent: { title: 'Recent Searches', subtitle: 'View your search history' },
+        help: { title: 'Help & Documentation', subtitle: 'Learn how to use FileSeek' }
+      };
+      
+      document.getElementById('pageTitle').textContent = titles[tabName].title;
+      document.getElementById('pageSubtitle').textContent = titles[tabName].subtitle;
+    }
+
     // Get references to HTML elements
     const searchForm = document.getElementById('searchForm');
     const directoryInput = document.getElementById('directory');
@@ -85,17 +218,65 @@
     const resultsSection = document.getElementById('resultsSection');
     const resultsSummary = document.getElementById('resultsSummary');
     const resultsList = document.getElementById('resultsList');
+    const recentList = document.getElementById('recentList');
+
+    // Load recent searches from localStorage
+    function loadRecentSearches() {
+      const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      
+      if (recent.length === 0) {
+        recentList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🕐</div>
+            <h3>No recent searches</h3>
+            <p>Your search history will appear here</p>
+          </div>
+        `;
+      } else {
+        let html = '';
+        recent.forEach((search, index) => {
+          html += `
+            <div class="recent-item" onclick="loadRecent(${index})">
+              <div class="result-file">📁 ${search.directory}</div>
+              <div class="result-lines">Search: <strong>${search.word}</strong></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${new Date(search.time).toLocaleString()}</div>
+            </div>
+          `;
+        });
+        recentList.innerHTML = html;
+      }
+    }
+
+    // Load a recent search
+    function loadRecent(index) {
+      const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      const search = recent[index];
+      directoryInput.value = search.directory;
+      searchWordInput.value = search.word;
+      switchTab({ preventDefault: () => {} }, 'search');
+      performSearch(search.directory, search.word);
+    }
+
+    // Save search to recent
+    function saveRecent(directory, word) {
+      const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      const newSearch = { directory, word, time: new Date().toISOString() };
+      recent.unshift(newSearch);
+      if (recent.length > 10) recent.pop();
+      localStorage.setItem('recentSearches', JSON.stringify(recent));
+      loadRecentSearches();
+    }
 
     // Handle form submission
     searchForm.addEventListener('submit', async (event) => {
-      // Prevent the form from reloading the page
       event.preventDefault();
-
-      // Get input values
       const directory = directoryInput.value.trim();
       const searchWord = searchWordInput.value.trim();
+      performSearch(directory, searchWord);
+    });
 
-      // Validate inputs
+    // Perform search
+    async function performSearch(directory, searchWord) {
       if (!directory) {
         showStatus('error', 'Please enter a directory path');
         return;
@@ -106,13 +287,11 @@
         return;
       }
 
-      // Hide previous results and show loading spinner
       resultsSection.style.display = 'none';
       statusMessage.style.display = 'none';
       loading.style.display = 'flex';
 
       try {
-        // Send request to server (use absolute URL for Live Server compatibility)
         const response = await fetch('http://localhost:3000/api/search', {
           method: 'POST',
           headers: {
@@ -124,47 +303,39 @@
           })
         });
 
-        // Parse the response
         const data = await response.json();
-
-        // Hide loading spinner
         loading.style.display = 'none';
 
-        // Check if search was successful
         if (!response.ok) {
           showStatus('error', data.error || 'Search failed');
           return;
         }
 
-        // Display results
+        saveRecent(directory, searchWord);
         displayResults(data);
 
       } catch (error) {
-        // Handle network errors
         loading.style.display = 'none';
         showStatus('error', 'Network error: ' + error.message);
       }
-    });
+    }
 
     // Function to show status messages
     function showStatus(type, message) {
-      statusMessage.className = 'status-message ' + type;
+      statusMessage.className = 'status-card ' + type;
       statusMessage.textContent = message;
       statusMessage.style.display = 'block';
     }
 
     // Function to display search results
     function displayResults(data) {
-      // Show results section
       resultsSection.style.display = 'block';
 
-      // Show summary
       const filesFound = data.filesFound;
       resultsSummary.innerHTML = `
         <p><strong>Found in ${filesFound} file(s)</strong></p>
       `;
 
-      // List all results
       if (filesFound === 0) {
         resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
       } else {
@@ -184,6 +355,9 @@
         resultsList.innerHTML = html;
       }
     }
+
+    // Load recent searches on page load
+    loadRecentSearches();
   </script>
 </body>
 </html>
