@@ -330,6 +330,12 @@
     // Function to display search results
     function displayResults(data) {
       resultsSection.style.display = 'block';
+      
+      // Hide the empty state
+      const emptyState = document.querySelector('.results-section .empty-state');
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
 
       const filesFound = data.filesFound;
       resultsSummary.innerHTML = `
