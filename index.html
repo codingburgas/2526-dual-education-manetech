@@ -32,6 +32,11 @@
   <main class="main-wrapper">
     <!-- Top Bar -->
     <div class="topbar">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <div class="topbar-content">
         <h1 id="pageTitle">File Search Tool</h1>
         <p class="subtitle" id="pageSubtitle">Search through your documents efficiently</p>
@@ -182,6 +187,37 @@
 
   <!-- JavaScript -->
   <script>
+    // Sidebar toggle functionality for mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebarToggle.classList.toggle('active');
+        sidebar.classList.toggle('active');
+      });
+
+      // Close sidebar when clicking on nav items
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          sidebarToggle.classList.remove('active');
+          sidebar.classList.remove('active');
+        });
+      });
+
+      // Close sidebar when clicking outside of it
+      document.addEventListener('click', (event) => {
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnToggle = sidebarToggle.contains(event.target);
+        
+        if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('active')) {
+          sidebarToggle.classList.remove('active');
+          sidebar.classList.remove('active');
+        }
+      });
+    }
+
     // Tab switching functionality
     function switchTab(event, tabName) {
       event.preventDefault();
