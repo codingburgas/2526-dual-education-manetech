@@ -109,6 +109,7 @@ body {
   color: var(--primary-light);
   background: rgba(37, 99, 235, 0.15);
   border-left-color: var(--primary);
+  background: rgba(26, 36, 65, 0.8) !important;
 }
  
 .sidebar-footer {
@@ -788,6 +789,7 @@ body {
   min-height: 350px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 900ms ease 300ms both;
+  background: #ffffff !important;
 }
  
 .empty-icon {
@@ -802,13 +804,15 @@ body {
   color: var(--text);
   font-weight: 700;
   letter-spacing: 0.5px;
+  color: #1a1a1a !important;
 }
- 
+
 .empty-state p {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
+  color: #666 !important;
 }
  
 /* Help Content Styles */
@@ -1665,6 +1669,14 @@ body.light-mode .no-results {
 
 body.light-mode .empty-state {
   color: #1a1a1a !important;
+}
+
+body.light-mode .empty-state h3 {
+  color: #1a1a1a !important;
+}
+
+body.light-mode .empty-state p {
+  color: #666 !important;
 }
 
 /* Footer */
