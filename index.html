@@ -4,12 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>File Searcher - Document Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#1a1f35">
+  <meta name="the    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    const searchForm = document.getElementById('searchForm');
+    const directoryInput = document.getElementById('directory');
+    const searchWordInput = document.getElementById('searchWord');
+    const statusMessage = document.getElementById('statusMessage');
+    const loading = document.getElementById('loading');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsSummary = document.getElementById('resultsSummary');
+    const resultsList = document.getElementById('resultsList');
+    const recentList = document.getElementById('recentList');
+    const filterResults = document.getElementById('filterResults');
+    const exportBtn = document.getElementById('exportBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const sortRecentBtn = document.getElementById('sortRecentBtn');nt="#0f172a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>📁</text></svg>">
 </head>
 <body>
-  <!-- Sidebar Navigation -->
+  <!-- Left Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-icon">📁</div>
@@ -18,13 +34,71 @@
         <p>v1.0</p>
       </div>
     </div>
+    
+    <!-- Navigation -->
     <nav class="sidebar-nav">
-      <a href="#search" class="nav-item active" onclick="switchTab(event, 'search')">Search</a>
-      <a href="#recent" class="nav-item" onclick="switchTab(event, 'recent')">Recent</a>
-      <a href="#help" class="nav-item" onclick="switchTab(event, 'help')">Help</a>
+      <a href="#search" class="nav-item active" onclick="switchTab(event, 'search')">🔍 Search</a>
+      <a href="#recent" class="nav-item" onclick="switchTab(event, 'recent')">🕐 Recent</a>
+      <a href="#help" class="nav-item" onclick="switchTab(event, 'help')">❓ Help</a>
     </nav>
+
+    <!-- NEW FEATURES PANEL -->
+    <div class="features-panel">
+      <h4 class="features-title">⚡ Features</h4>
+      
+      <!-- Theme Toggle -->
+      <div class="feature-item">
+        <button id="themeToggle" class="feature-btn" title="Toggle dark/light mode">
+          <span class="feature-icon">🌙</span>
+          <span class="feature-text">Theme</span>
+        </button>
+      </div>
+
+      <!-- Export Results -->
+      <div class="feature-item" id="exportFeature" style="display: none;">
+        <button id="exportBtn" class="feature-btn" title="Export results as JSON">
+          <span class="feature-icon">📥</span>
+          <span class="feature-text">Export</span>
+        </button>
+      </div>
+
+      <!-- Filter Results -->
+      <div class="feature-item" id="filterFeature" style="display: none;">
+        <input type="text" id="filterResults" placeholder="Filter..." class="feature-filter">
+      </div>
+
+      <!-- Clear History -->
+      <div class="feature-item" id="clearFeature" style="display: none;">
+        <button id="clearHistoryBtn" class="feature-btn danger" title="Clear search history">
+          <span class="feature-icon">🗑️</span>
+          <span class="feature-text">Clear</span>
+        </button>
+      </div>
+
+      <!-- Sort Recent -->
+      <div class="feature-item" id="sortFeature" style="display: none;">
+        <button id="sortRecentBtn" class="feature-btn" title="Sort by date">
+          <span class="feature-icon">⏱️</span>
+          <span class="feature-text">Sort</span>
+        </button>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="feature-item" id="statsFeature" style="display: none;">
+        <div class="stats-box">
+          <div class="stat">
+            <span class="stat-label">Searches</span>
+            <span class="stat-value" id="totalSearches">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Files</span>
+            <span class="stat-value" id="uniqueFiles">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="sidebar-footer">
-      <p>&copy; ManeTech 2026 - All Rights Reserved</p>
+      <p>&copy;/ ManeTech 2026 - All Rights Reserved</p>
     </div>
   </aside>
 
@@ -32,14 +106,12 @@
   <main class="main-wrapper">
     <!-- Top Bar -->
     <div class="topbar">
-      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
       <div class="topbar-content">
         <h1 id="pageTitle">File Search Tool</h1>
         <p class="subtitle" id="pageSubtitle">Search through your documents efficiently</p>
+      </div>
+      <div class="topbar-status" id="topbarStatus" style="display: none;">
+        <p id="statusText">Searching through your files...</p>
       </div>
     </div>
 
@@ -79,10 +151,33 @@
                 <span class="form-hint">Enter the word or phrase to find</span>
               </div>
 
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="caseSensitive">
+                  <span>Case Sensitive</span>
+                </label>
+                <label>
+                  <input type="checkbox" id="wholeWord">
+                  <span>Whole Word Only</span>
+                </label>
+              </div>
+
               <button type="submit" class="btn-primary">
                 <span class="btn-icon">🔍</span>
                 <span class="btn-text">Search Now</span>
               </button>
+            </form>
+
+            <div class="quick-stats">
+              <div class="stat-item">
+                <span class="stat-label">Total Searches</span>
+                <span class="stat-value" id="totalSearches">0</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Unique Dirs</span>
+                <span class="stat-value" id="uniqueFiles">0</span>
+              </div>
+            </div>
             </form>
           </div>
         </section>
@@ -104,9 +199,13 @@
             <div class="card-header">
               <h2>Results</h2>
               <span id="resultsBadge" class="badge">0 files</span>
+              <button class="btn-export" id="exportResultsBtn" title="Export results as JSON">📥 Export</button>
             </div>
             
             <div id="resultsSummary" class="results-stats"></div>
+            <div class="results-filter">
+              <input type="text" id="filterResults" placeholder="🔍 Filter results..." class="filter-input">
+            </div>
             <div id="resultsList" class="results-container"></div>
           </div>
 
@@ -126,6 +225,8 @@
             <div class="card-header">
               <h2>Recent Searches</h2>
               <span class="badge">History</span>
+              <button class="btn-export" id="sortRecent" title="Sort by date">⏱️ Sort</button>
+              <button class="btn-export" id="clearRecentBtn" title="Clear history">🗑️ Clear All</button>
             </div>
             
             <div id="recentList" class="recent-list">
@@ -165,12 +266,33 @@
               </div>
 
               <div class="help-section">
+                <h3>Advanced Features</h3>
+                <ul>
+                  <li><strong>Case Sensitive:</strong> Match exact letter casing</li>
+                  <li><strong>Whole Word Only:</strong> Find exact word matches</li>
+                  <li><strong>Export Results:</strong> Download search results as JSON</li>
+                  <li><strong>Filter Results:</strong> Quickly filter search results</li>
+                  <li><strong>Dark Mode:</strong> Toggle theme for comfortable viewing</li>
+                </ul>
+              </div>
+
+              <div class="help-section">
                 <h3>Tips & Tricks</h3>
                 <ul>
                   <li>Use relative paths like ./documents or ./test-data</li>
-                  <li>Search is case-insensitive</li>
+                  <li>Search is case-insensitive by default</li>
                   <li>Results show exact line numbers for easy access</li>
                   <li>Your recent searches are automatically saved</li>
+                  <li>Click on recent searches to quickly re-run them</li>
+                </ul>
+              </div>
+
+              <div class="help-section">
+                <h3>Keyboard Shortcuts</h3>
+                <ul>
+                  <li><strong>Enter:</strong> Submit search form</li>
+                  <li><strong>Ctrl/Cmd + K:</strong> Focus search input</li>
+                  <li><strong>Esc:</strong> Clear search</li>
                 </ul>
               </div>
 
@@ -187,44 +309,66 @@
 
   <!-- JavaScript -->
   <script>
-    // ========== MOBILE SIDEBAR TOGGLE ==========
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.querySelector('.sidebar');
+    // ============================================
+    // THEME TOGGLE
+    // ============================================
+    let sortAscending = true;
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      themeToggle.innerHTML = isLight 
+        ? '<span class="feature-icon">☀️</span><span class="feature-text">Theme</span>' 
+        : '<span class="feature-icon">🌙</span><span class="feature-text">Theme</span>';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
 
-    if (sidebarToggle) {
-      sidebarToggle.addEventListener('click', () => {
-        sidebarToggle.classList.toggle('active');
-        sidebar.classList.toggle('active');
-      });
-
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-          sidebarToggle.classList.remove('active');
-          sidebar.classList.remove('active');
-        });
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-          sidebarToggle.classList.remove('active');
-          sidebar.classList.remove('active');
-        }
-      });
+    // Load theme from localStorage
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-mode');
+      themeToggle.innerHTML = '<span class="feature-icon">☀️</span><span class="feature-text">Theme</span>';
     }
 
-    // ========== TAB SWITCHING ==========
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('searchWord').focus();
+      }
+      if (e.key === 'Escape') {
+        document.getElementById('searchWord').value = '';
+      }
+    });
+
+    // ============================================
+    // TAB SWITCHING
+    // ============================================
     function switchTab(event, tabName) {
       event.preventDefault();
       
-      // Hide all tabs and deactivate all nav items
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      const tabs = document.querySelectorAll('.tab-content');
+      const navItems = document.querySelectorAll('.nav-item');
       
-      // Show selected tab and activate nav item
-      document.getElementById(tabName + '-tab').classList.add('active');
+      const currentTab = document.querySelector('.tab-content.active');
+      if (currentTab) {
+        currentTab.style.animation = 'none';
+        setTimeout(() => {
+          currentTab.classList.remove('active');
+        }, 50);
+      }
+      
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      const newTab = document.getElementById(tabName + '-tab');
+      newTab.style.animation = 'fadeInUp 600ms ease 100ms both';
+      setTimeout(() => {
+        newTab.classList.add('active');
+      }, 50);
+      
       event.target.classList.add('active');
       
-      // Update page title and subtitle
       const titles = {
         search: { title: 'File Search Tool', subtitle: 'Search through your documents efficiently' },
         recent: { title: 'Recent Searches', subtitle: 'View your search history' },
@@ -233,9 +377,18 @@
       
       document.getElementById('pageTitle').textContent = titles[tabName].title;
       document.getElementById('pageSubtitle').textContent = titles[tabName].subtitle;
+
+      // Show/hide buttons based on tab
+      document.getElementById('exportFeature').style.display = tabName === 'search' ? 'block' : 'none';
+      document.getElementById('filterFeature').style.display = tabName === 'search' ? 'block' : 'none';
+      document.getElementById('clearFeature').style.display = tabName === 'recent' ? 'block' : 'none';
+      document.getElementById('sortFeature').style.display = tabName === 'recent' ? 'block' : 'none';
+      document.getElementById('statsFeature').style.display = tabName === 'search' ? 'block' : 'none';
     }
 
-    // ========== GET HTML ELEMENTS ==========
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
     const searchForm = document.getElementById('searchForm');
     const directoryInput = document.getElementById('directory');
     const searchWordInput = document.getElementById('searchWord');
@@ -245,17 +398,27 @@
     const resultsSummary = document.getElementById('resultsSummary');
     const resultsList = document.getElementById('resultsList');
     const recentList = document.getElementById('recentList');
+    const filterResults = document.getElementById('filterResults');
+    const exportBtn = document.getElementById('exportBtn');
+    const exportResultsBtn = document.getElementById('exportResultsBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const clearRecentBtn = document.getElementById('clearRecentBtn');
+    const caseSensitiveCheckbox = document.getElementById('caseSensitive');
+    const wholeWordCheckbox = document.getElementById('wholeWord');
 
-    // ========== SHOW STATUS MESSAGE ==========
-    function showStatus(type, message) {
-      statusMessage.className = 'status-card ' + type;
-      statusMessage.textContent = message;
-      statusMessage.style.display = 'block';
+    // ============================================
+    // STATS & RECENT SEARCHES
+    // ============================================
+    function updateStats() {
+      const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      document.getElementById('totalSearches').textContent = recent.length;
+      const uniqueFiles = new Set(recent.map(r => r.directory)).size;
+      document.getElementById('uniqueFiles').textContent = uniqueFiles;
     }
 
-    // ========== LOAD RECENT SEARCHES ==========
     function loadRecentSearches() {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      updateStats();
       
       if (recent.length === 0) {
         recentList.innerHTML = `
@@ -266,17 +429,20 @@
           </div>
         `;
       } else {
-        recentList.innerHTML = recent.map((search, index) => `
-          <div class="recent-item" onclick="loadRecent(${index})">
-            <div class="result-file">📁 ${search.directory}</div>
-            <div class="result-lines">Search: <strong>${search.word}</strong></div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${new Date(search.time).toLocaleString()}</div>
-          </div>
-        `).join('');
+        let html = '';
+        recent.forEach((search, index) => {
+          html += `
+            <div class="recent-item" onclick="loadRecent(${index})">
+              <div class="result-file">📁 ${search.directory}</div>
+              <div class="result-lines">Search: <strong>${search.word}</strong></div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${new Date(search.time).toLocaleString()}</div>
+            </div>
+          `;
+        });
+        recentList.innerHTML = html;
       }
     }
 
-    // ========== LOAD A RECENT SEARCH ==========
     function loadRecent(index) {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
       const search = recent[index];
@@ -286,42 +452,118 @@
       performSearch(search.directory, search.word);
     }
 
-    // ========== SAVE SEARCH TO RECENT ==========
     function saveRecent(directory, word) {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
-      recent.unshift({ directory, word, time: new Date().toISOString() });
+      const newSearch = { directory, word, time: new Date().toISOString() };
+      recent.unshift(newSearch);
       if (recent.length > 10) recent.pop();
       localStorage.setItem('recentSearches', JSON.stringify(recent));
       loadRecentSearches();
     }
 
-    // ========== DISPLAY SEARCH RESULTS ==========
-    function displayResults(data) {
-      resultsSection.style.display = 'block';
-      
-      const emptyState = document.querySelector('.results-section .empty-state');
-      if (emptyState) emptyState.style.display = 'none';
+    // ============================================
+    // EXPORT & FILTER
+    // ============================================
+    exportBtn.addEventListener('click', () => {
+      const results = {
+        directory: directoryInput.value,
+        searchWord: searchWordInput.value,
+        timestamp: new Date().toISOString(),
+        results: resultsToJSON()
+      };
+      const json = JSON.stringify(results, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `search-results-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
 
-      const filesFound = data.filesFound;
-      
-      // Update badge
-      document.getElementById('resultsBadge').textContent = filesFound + ' file' + (filesFound !== 1 ? 's' : '');
-      
-      resultsSummary.innerHTML = `<p><strong>Found in ${filesFound} file(s)</strong></p>`;
+    exportResultsBtn.addEventListener('click', () => {
+      const results = {
+        directory: directoryInput.value,
+        searchWord: searchWordInput.value,
+        timestamp: new Date().toISOString(),
+        results: resultsToJSON()
+      };
+      const json = JSON.stringify(results, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `search-results-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus('success', 'Results exported successfully!');
+    });
 
-      if (filesFound === 0) {
-        resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
-      } else {
-        resultsList.innerHTML = Object.keys(data.results).map(filePath => `
-          <div class="result-item">
-            <div class="result-file">📄 ${filePath}</div>
-            <div class="result-lines">Lines: <strong>${data.results[filePath].join(', ')}</strong></div>
-          </div>
-        `).join('');
+    clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all search history?')) {
+        localStorage.removeItem('recentSearches');
+        loadRecentSearches();
+        showStatus('success', 'Search history cleared');
       }
-    }
+    });
 
-    // ========== PERFORM SEARCH ==========
+    clearRecentBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all search history?')) {
+        localStorage.removeItem('recentSearches');
+        loadRecentSearches();
+        showStatus('success', 'Search history cleared');
+      }
+    });
+
+    sortRecentBtn.addEventListener('click', () => {
+      let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+      if (recentSearches.length === 0) {
+        showStatus('error', 'No recent searches to sort');
+        return;
+      }
+      
+      // Sort by time property (ISO string), not timestamp
+      recentSearches.sort((a, b) => {
+        const timeA = new Date(a.time).getTime();
+        const timeB = new Date(b.time).getTime();
+        return sortAscending ? timeA - timeB : timeB - timeA;
+      });
+      
+      // Toggle sort direction for next click
+      sortAscending = !sortAscending;
+      
+      // Update button text with direction indicator
+      sortRecentBtn.innerHTML = sortAscending 
+        ? '<span class="feature-icon">⏱️</span><span class="feature-text">Sort ↓</span>' 
+        : '<span class="feature-icon">⏱️</span><span class="feature-text">Sort ↑</span>';
+      
+      // Save sorted data
+      localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+      
+      // Reload recent searches display
+      loadRecentSearches();
+      showStatus('success', 'Recent searches sorted!');
+    });
+
+    filterResults.addEventListener('input', (e) => {
+      const filterText = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.result-item');
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(filterText) ? 'flex' : 'none';
+      });
+    });
+
+    // ============================================
+    // SEARCH FUNCTIONALITY
+    // ============================================
+    searchForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const directory = directoryInput.value.trim();
+      const searchWord = searchWordInput.value.trim();
+      performSearch(directory, searchWord);
+    });
+
     async function performSearch(directory, searchWord) {
       if (!directory) {
         showStatus('error', 'Please enter a directory path');
@@ -333,20 +575,31 @@
         return;
       }
 
-      // Hide results and show loading
       resultsSection.style.display = 'none';
       statusMessage.style.display = 'none';
       loading.style.display = 'flex';
+      filterResults.value = '';
+      
+      document.getElementById('topbarStatus').classList.add('active');
 
       try {
         const response = await fetch('http://localhost:3000/api/search', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ directory, searchWord })
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            directory: directory,
+            searchWord: searchWord,
+            caseSensitive: caseSensitiveCheckbox.checked,
+            wholeWord: wholeWordCheckbox.checked
+          })
         });
 
         const data = await response.json();
         loading.style.display = 'none';
+        
+        document.getElementById('topbarStatus').classList.remove('active');
 
         if (!response.ok) {
           showStatus('error', data.error || 'Search failed');
@@ -355,19 +608,59 @@
 
         saveRecent(directory, searchWord);
         displayResults(data);
+
       } catch (error) {
         loading.style.display = 'none';
+        document.getElementById('topbarStatus').classList.remove('active');
         showStatus('error', 'Network error: ' + error.message);
       }
     }
 
-    // ========== HANDLE FORM SUBMISSION ==========
-    searchForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      performSearch(directoryInput.value.trim(), searchWordInput.value.trim());
-    });
+    function showStatus(type, message) {
+      statusMessage.className = 'status-card ' + type;
+      statusMessage.textContent = message;
+      statusMessage.style.display = 'block';
+    }
 
-    // ========== INITIALIZE ON PAGE LOAD ==========
+    function resultsToJSON() {
+      const results = {};
+      document.querySelectorAll('.result-item').forEach(item => {
+        const fileText = item.querySelector('.result-file').textContent.replace('📄 ', '').trim();
+        const linesText = item.querySelector('.result-lines').textContent.replace('Lines: ', '').trim();
+        results[fileText] = linesText;
+      });
+      return results;
+    }
+
+    function displayResults(data) {
+      resultsSection.style.display = 'block';
+
+      const filesFound = data.filesFound;
+      
+      document.getElementById('resultsBadge').textContent = filesFound + ' file' + (filesFound !== 1 ? 's' : '');
+      
+      resultsSummary.innerHTML = `
+        <p><strong>Found in ${filesFound} file(s)</strong></p>
+      `;
+
+      if (filesFound === 0) {
+        resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
+      } else {
+        let html = '';
+        for (let filePath in data.results) {
+          const lineNumbers = data.results[filePath];
+          html += `
+            <div class="result-item">
+              <div class="result-file">📄 ${filePath}</div>
+              <div class="result-lines">Lines: <strong>${lineNumbers.join(', ')}</strong></div>
+            </div>
+          `;
+        }
+        resultsList.innerHTML = html;
+      }
+    }
+
+    // Load on page load
     loadRecentSearches();
   </script>
 </body>
