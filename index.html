@@ -210,7 +210,7 @@
           </div>
 
           <!-- Empty State -->
-          <div class="empty-state">
+          <div id="emptyState" class="empty-state">
             <div class="empty-icon">📄</div>
             <h3>No search yet</h3>
             <p>Use the search form to find files with your keyword</p>
@@ -397,6 +397,7 @@
     const resultsSection = document.getElementById('resultsSection');
     const resultsSummary = document.getElementById('resultsSummary');
     const resultsList = document.getElementById('resultsList');
+    const emptyState = document.getElementById('emptyState');
     const recentList = document.getElementById('recentList');
     const filterResults = document.getElementById('filterResults');
     const exportBtn = document.getElementById('exportBtn');
@@ -576,6 +577,7 @@
       }
 
       resultsSection.style.display = 'none';
+      emptyState.style.display = 'none';
       statusMessage.style.display = 'none';
       loading.style.display = 'flex';
       filterResults.value = '';
@@ -634,6 +636,7 @@
 
     function displayResults(data) {
       resultsSection.style.display = 'block';
+      emptyState.style.display = 'none';
 
       const filesFound = data.filesFound;
       
