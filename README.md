@@ -94,6 +94,6 @@ Example: feat: add recursive directory traversal
 
 ## 📄 Documentation
 
-All project documentation is maintained in the `/docs` folder as `.docx` and `.pptx` files.
+All project documentation is maintained in the `/Presentation and Documentation` folder as `.docx` and `.pptx` files.
 
 Team File Searcher — © 2026
