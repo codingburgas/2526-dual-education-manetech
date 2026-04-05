@@ -6,17 +6,20 @@ const path = require('path');
 async function getAllFiles(dir) {
   const allFiles = [];
   
-  async function readFolder(currentDir) {
+  async function readFolder(currentDir, relativePath = '') {
     try {
       const entries = await fs.readdir(currentDir, { withFileTypes: true });
       
       for (let entry of entries) {
         const fullPath = path.join(currentDir, entry.name);
-        allFiles.push(fullPath);
+        // Build relative path with forward slashes: dir1/file.txt or dir1/A/file.txt
+        const relPath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
+        
+        allFiles.push(relPath.replace(/\\/g, '/')); // Convert backslashes to forward slashes
         
         // If it's a folder, read inside it too
         if (entry.isDirectory()) {
-          await readFolder(fullPath);
+          await readFolder(fullPath, relPath);
         }
       }
     } catch (error) {
@@ -33,13 +36,17 @@ async function readTextFiles(dir) {
   const allPaths = await getAllFiles(dir);
   const files = [];
   
-  for (let filePath of allPaths) {
-    if (filePath.endsWith('.txt')) {
+  for (let relPath of allPaths) {
+    if (relPath.endsWith('.txt')) {
+      // Convert relative path back to full path
+      const fullPath = path.join(dir, relPath.replace(/\//g, path.sep));
+      
       try {
-        const content = await fs.readFile(filePath, 'utf8');
-        files.push({ filePath, content });
+        const content = await fs.readFile(fullPath, 'utf8');
+        // Store with relative path in correct format (forward slashes)
+        files.push({ filePath: relPath, content });
       } catch (error) {
-        console.log('Could not read file:', filePath);
+        console.log('Could not read file:', fullPath);
       }
     }
   }
