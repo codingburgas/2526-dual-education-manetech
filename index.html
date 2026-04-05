@@ -187,10 +187,9 @@
 
   <!-- JavaScript -->
   <script>
-    // Sidebar toggle functionality for mobile
+    // ========== MOBILE SIDEBAR TOGGLE ==========
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    const navItems = document.querySelectorAll('.nav-item');
 
     if (sidebarToggle) {
       sidebarToggle.addEventListener('click', () => {
@@ -198,39 +197,30 @@
         sidebar.classList.toggle('active');
       });
 
-      // Close sidebar when clicking on nav items
-      navItems.forEach(item => {
+      document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
           sidebarToggle.classList.remove('active');
           sidebar.classList.remove('active');
         });
       });
 
-      // Close sidebar when clicking outside of it
-      document.addEventListener('click', (event) => {
-        const isClickInsideSidebar = sidebar.contains(event.target);
-        const isClickOnToggle = sidebarToggle.contains(event.target);
-        
-        if (!isClickInsideSidebar && !isClickOnToggle && sidebar.classList.contains('active')) {
+      document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
           sidebarToggle.classList.remove('active');
           sidebar.classList.remove('active');
         }
       });
     }
 
-    // Tab switching functionality
+    // ========== TAB SWITCHING ==========
     function switchTab(event, tabName) {
       event.preventDefault();
       
-      // Hide all tabs
-      const tabs = document.querySelectorAll('.tab-content');
-      tabs.forEach(tab => tab.classList.remove('active'));
+      // Hide all tabs and deactivate all nav items
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
       
-      // Remove active class from all nav items
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach(item => item.classList.remove('active'));
-      
-      // Show selected tab
+      // Show selected tab and activate nav item
       document.getElementById(tabName + '-tab').classList.add('active');
       event.target.classList.add('active');
       
@@ -245,7 +235,7 @@
       document.getElementById('pageSubtitle').textContent = titles[tabName].subtitle;
     }
 
-    // Get references to HTML elements
+    // ========== GET HTML ELEMENTS ==========
     const searchForm = document.getElementById('searchForm');
     const directoryInput = document.getElementById('directory');
     const searchWordInput = document.getElementById('searchWord');
@@ -256,7 +246,14 @@
     const resultsList = document.getElementById('resultsList');
     const recentList = document.getElementById('recentList');
 
-    // Load recent searches from localStorage
+    // ========== SHOW STATUS MESSAGE ==========
+    function showStatus(type, message) {
+      statusMessage.className = 'status-card ' + type;
+      statusMessage.textContent = message;
+      statusMessage.style.display = 'block';
+    }
+
+    // ========== LOAD RECENT SEARCHES ==========
     function loadRecentSearches() {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
       
@@ -269,21 +266,17 @@
           </div>
         `;
       } else {
-        let html = '';
-        recent.forEach((search, index) => {
-          html += `
-            <div class="recent-item" onclick="loadRecent(${index})">
-              <div class="result-file">📁 ${search.directory}</div>
-              <div class="result-lines">Search: <strong>${search.word}</strong></div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${new Date(search.time).toLocaleString()}</div>
-            </div>
-          `;
-        });
-        recentList.innerHTML = html;
+        recentList.innerHTML = recent.map((search, index) => `
+          <div class="recent-item" onclick="loadRecent(${index})">
+            <div class="result-file">📁 ${search.directory}</div>
+            <div class="result-lines">Search: <strong>${search.word}</strong></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${new Date(search.time).toLocaleString()}</div>
+          </div>
+        `).join('');
       }
     }
 
-    // Load a recent search
+    // ========== LOAD A RECENT SEARCH ==========
     function loadRecent(index) {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
       const search = recent[index];
@@ -293,25 +286,42 @@
       performSearch(search.directory, search.word);
     }
 
-    // Save search to recent
+    // ========== SAVE SEARCH TO RECENT ==========
     function saveRecent(directory, word) {
       const recent = JSON.parse(localStorage.getItem('recentSearches')) || [];
-      const newSearch = { directory, word, time: new Date().toISOString() };
-      recent.unshift(newSearch);
+      recent.unshift({ directory, word, time: new Date().toISOString() });
       if (recent.length > 10) recent.pop();
       localStorage.setItem('recentSearches', JSON.stringify(recent));
       loadRecentSearches();
     }
 
-    // Handle form submission
-    searchForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const directory = directoryInput.value.trim();
-      const searchWord = searchWordInput.value.trim();
-      performSearch(directory, searchWord);
-    });
+    // ========== DISPLAY SEARCH RESULTS ==========
+    function displayResults(data) {
+      resultsSection.style.display = 'block';
+      
+      const emptyState = document.querySelector('.results-section .empty-state');
+      if (emptyState) emptyState.style.display = 'none';
 
-    // Perform search
+      const filesFound = data.filesFound;
+      
+      // Update badge
+      document.getElementById('resultsBadge').textContent = filesFound + ' file' + (filesFound !== 1 ? 's' : '');
+      
+      resultsSummary.innerHTML = `<p><strong>Found in ${filesFound} file(s)</strong></p>`;
+
+      if (filesFound === 0) {
+        resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
+      } else {
+        resultsList.innerHTML = Object.keys(data.results).map(filePath => `
+          <div class="result-item">
+            <div class="result-file">📄 ${filePath}</div>
+            <div class="result-lines">Lines: <strong>${data.results[filePath].join(', ')}</strong></div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ========== PERFORM SEARCH ==========
     async function performSearch(directory, searchWord) {
       if (!directory) {
         showStatus('error', 'Please enter a directory path');
@@ -323,6 +333,7 @@
         return;
       }
 
+      // Hide results and show loading
       resultsSection.style.display = 'none';
       statusMessage.style.display = 'none';
       loading.style.display = 'flex';
@@ -330,13 +341,8 @@
       try {
         const response = await fetch('http://localhost:3000/api/search', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            directory: directory,
-            searchWord: searchWord
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ directory, searchWord })
         });
 
         const data = await response.json();
@@ -349,63 +355,19 @@
 
         saveRecent(directory, searchWord);
         displayResults(data);
-
       } catch (error) {
         loading.style.display = 'none';
         showStatus('error', 'Network error: ' + error.message);
       }
     }
 
-    // Function to show status messages
-    function showStatus(type, message) {
-      statusMessage.className = 'status-card ' + type;
-      statusMessage.textContent = message;
-      statusMessage.style.display = 'block';
-    }
+    // ========== HANDLE FORM SUBMISSION ==========
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      performSearch(directoryInput.value.trim(), searchWordInput.value.trim());
+    });
 
-    // Function to display search results
-    function displayResults(data) {
-      resultsSection.style.display = 'block';
-      
-      // Hide the empty state
-      const emptyState = document.querySelector('.results-section .empty-state');
-      if (emptyState) {
-        emptyState.style.display = 'none';
-      }
-
-      const filesFound = data.filesFound;
-      
-      // Update the badge with the number of files found
-      const resultsBadge = document.getElementById('resultsBadge');
-      if (resultsBadge) {
-        resultsBadge.textContent = filesFound + ' file' + (filesFound !== 1 ? 's' : '');
-      }
-      
-      resultsSummary.innerHTML = `
-        <p><strong>Found in ${filesFound} file(s)</strong></p>
-      `;
-
-      if (filesFound === 0) {
-        resultsList.innerHTML = '<p class="no-results">No files containing that word were found.</p>';
-      } else {
-        let html = '<div class="results-table">';
-
-        for (let filePath in data.results) {
-          const lineNumbers = data.results[filePath];
-          html += `
-            <div class="result-item">
-              <div class="result-file">📄 ${filePath}</div>
-              <div class="result-lines">Lines: <strong>${lineNumbers.join(', ')}</strong></div>
-            </div>
-          `;
-        }
-
-        html += '</div>';
-        resultsList.innerHTML = html;
-      }
-    }
-
-    // Load recent searches on page load
+    // ========== INITIALIZE ON PAGE LOAD ==========
     loadRecentSearches();
   </script>
 </body>

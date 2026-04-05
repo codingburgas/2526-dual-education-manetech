@@ -1,52 +1,52 @@
-# 🔍 File Searcher — Asynchronous Text Search
-A JavaScript grep-like tool for searching text across directory hierarchies using async/await and Node.js.
+# 🔍 File Searcher
 
----
+A simple tool to search for text in .txt files across folders.
 
-## 👥 Team
+## Team
+- RMKolibarov (Developer)
+- HAMihaylov24 (Developer)  
+- PDKapralev24 (Developer)
 
-| Name | Role |
-|------|------|
-| RMKolibarov | Developer |
-| HAMihaylov24 | Developer |
-| PDKapralev24 | Developer |
+## How it works
 
----
+**searcher.js** - The search engine
+- `getAllFiles(dir)` - Finds all files in a folder and subfolders
+- `readTextFiles(dir)` - Reads the content of all .txt files
+- `search(dir, word)` - Searches for a word and returns which files and line numbers
 
-## 📌 About the Project
-
-File Searcher is an async CLI and web-based tool that recursively searches `.txt` files for a given token — similar to the Linux `grep` command. Built as part of an internship activity at PGKPI – Burgas.
-
-**Key Features**
-- Recursive directory traversal
-- Async file reading with `async/await`
-- Returns matched file paths and line numbers as JSON
-- CLI and web interface included
-- Graceful error handling (invalid paths, empty dirs, no matches)
-
----
-
-## 🛠️ Tech Stack & Tools
-
-- **Node.js** (v12+) — JavaScript runtime
-- **fs/promises** — Built-in async file system module
-- No external dependencies
-
----
-
-## 🚀 Getting Started
-
-**Prerequisites**
-- Node.js (v12 or higher)
-- Git installed on your machine
-
-**Clone the Repository**
-```
-git clone <repository-url>
-cd file-searcher
+**index.js** - Command line tool
+```bash
+node index.js ./test-data World
 ```
 
-**Option 1 — CLI**
+**web-server.js + index.html** - Web interface
+- Browser-based search tool
+- Shows results in a nice UI
+- Mobile-friendly design
+
+## Running it
+
+**Command line:**
+```bash
+node index.js ./test-data "your search word"
+```
+
+**Web version:**
+```bash
+node web-server.js
+```
+Then open http://localhost:3000 in your browser
+
+## Result format
+
+Results show:
+- File path
+- Line numbers where the word was found
+
+Example:
+```
+./test-data/file.txt
+Lines: 5, 12, 28
 ```
 node index.js <directory> <search-token>
 
