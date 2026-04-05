@@ -374,6 +374,13 @@
       }
 
       const filesFound = data.filesFound;
+      
+      // Update the badge with the number of files found
+      const resultsBadge = document.getElementById('resultsBadge');
+      if (resultsBadge) {
+        resultsBadge.textContent = filesFound + ' file' + (filesFound !== 1 ? 's' : '');
+      }
+      
       resultsSummary.innerHTML = `
         <p><strong>Found in ${filesFound} file(s)</strong></p>
       `;
